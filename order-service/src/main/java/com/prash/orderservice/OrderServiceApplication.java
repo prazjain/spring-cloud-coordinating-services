@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreaker;
+import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreakerFactory;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 @SpringBootApplication
 public class OrderServiceApplication {
@@ -36,13 +39,25 @@ class HelloController {
 	@Autowired
 	private WebClient.Builder webClient;
 
+	@Autowired
+	private ReactiveCircuitBreakerFactory circuitBreakerFactory;
+
 	@GetMapping("/hello")
 	public String getHello() {
-		String resp = webClient.build().get()
+
+		ReactiveCircuitBreaker rcb = circuitBreakerFactory.create("paymentservice-cb");
+
+		String resp = rcb.run( webClient.build().get()
 			.uri("http://payment-service/hello")
 			.retrieve()
-			.bodyToMono(String.class).block();
+			.bodyToMono(String.class),
+			throwable -> getDefaultPaymentServiceResponse()).block();
 		return resp + " via Order Service";
+	}
+
+	private Mono<String> getDefaultPaymentServiceResponse() {
+		System.out.println("Fallback for payment service called");
+		return Mono.just("Fallback payment service");
 	}
 }
 @RestController
