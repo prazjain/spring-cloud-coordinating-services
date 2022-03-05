@@ -7,10 +7,14 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @SpringBootApplication
 public class OrderServiceApplication {
@@ -19,6 +23,27 @@ public class OrderServiceApplication {
 		SpringApplication.run(OrderServiceApplication.class, args);
 	}
 
+	@Bean
+	@LoadBalanced
+	public WebClient.Builder loadBalancedWebClientBuilder() {
+		return WebClient.builder();
+	}
+
+}
+
+@RestController
+class HelloController {
+	@Autowired
+	private WebClient.Builder webClient;
+
+	@GetMapping("/hello")
+	public String getHello() {
+		String resp = webClient.build().get()
+			.uri("http://payment-service/hello")
+			.retrieve()
+			.bodyToMono(String.class).block();
+		return resp + " via Order Service";
+	}
 }
 @RestController
 class ServiceInstanceRestController {
