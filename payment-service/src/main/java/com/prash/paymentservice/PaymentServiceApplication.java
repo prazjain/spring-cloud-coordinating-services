@@ -29,6 +29,8 @@ class HelloController {
 			LocalDateTime now = LocalDateTime.now();
 			date = dtf.format(now);
 		}
-		return "Hello from Payment Service (init="+date+")";
+		String result = "Hello from Payment Service (init="+date+")";
+		System.out.println(result);
+		return result;
 	}
 }

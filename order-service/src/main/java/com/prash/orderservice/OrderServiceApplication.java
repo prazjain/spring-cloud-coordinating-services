@@ -10,6 +10,7 @@ import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreakerFac
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.cloud.loadbalancer.annotation.LoadBalancerClient;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +21,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 @SpringBootApplication
+@LoadBalancerClient(name="payment-service", configuration = LoadBalancerAlgorithmConfig.class)
 public class OrderServiceApplication {
 
 	public static void main(String[] args) {
