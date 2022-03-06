@@ -1,0 +1,46 @@
+
+server:
+  port: 8080
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: main
+          uri: http://localhost:53369 #use port where order service is running
+          predicates:
+            - Method=GET
+            - Path=/hello
+        - id: route-to-order-service
+          uri: http://localhost:53369 #use port where order service is running
+          predicates:
+            - Method=GET
+            - Path=/order
+          filters:
+            - SetPath=/hello
+        - id: main
+          uri: http://localhost:53381 #use port where payment service 1 is running
+          predicates:
+            - Method=GET
+            - Path=/payment1
+          filters:
+            - SetPath=/hello
+        - id: main
+          uri: http://localhost:53373 #use port where payment service 2 is running
+          predicates:
+            - Method=GET
+            - Path=/payment2
+          filters:
+            - SetPath=/hello
+
+logging:
+  level:
+    org.springframework.cloud.gateway: TRACE
+    org.springframework.http.server.reactive: DEBUG
+    org.springframework.web.reactive: DEBUG
+    reactor.ipc.netty: DEBUG
+    reactor.netty: DEBUG
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

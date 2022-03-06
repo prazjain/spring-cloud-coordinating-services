@@ -12,6 +12,7 @@
         <module>eureka-server</module>
         <module>order-service</module>
         <module>payment-service</module>
+        <module>api-gateway</module>
     </modules>
 
     <properties>

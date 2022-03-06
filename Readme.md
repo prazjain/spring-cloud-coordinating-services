@@ -44,3 +44,10 @@ resilience4j.circuitbreaker.instances.paymentservice-cb.slow-call-rate-threshold
   resilience4j.circuitbreaker.instances.paymentservice-cb.wait-duration-in-open-state=20000
 
 So here, in window size of 6, if 3 calls exceed 2.5sec timelimit, then circuit breaker would be triggered.  
+
+**API Gateway**  
+In API Gateway project, we have set routes for `/hello` to go to order service endpoint.  
+`/order` route will be re-written to go to order service endpoint's `/hello`.  
+`/payment1` route will be re-written to go to payment service 1 endpoint's `/hello`.  
+`/payment2` route will be re-written to go to payment service 2 endpoint's `/hello`.  
+
