@@ -1,9 +1,20 @@
 
 server:
   port: 8080
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    register-with-eureka: false
+    fetch-registry: true
 spring:
+  application:
+    name: api-gateway
   cloud:
     gateway:
+      discovery:
+        locator:
+          enabled: true
       routes:
         - id: main
           uri: http://localhost:53369 #use port where order service is running
@@ -17,18 +28,32 @@ spring:
             - Path=/order
           filters:
             - SetPath=/hello
-        - id: main
+        - id: route-to-payment-service1
           uri: http://localhost:53381 #use port where payment service 1 is running
           predicates:
             - Method=GET
             - Path=/payment1
           filters:
             - SetPath=/hello
-        - id: main
+        - id: route-to-payment-service2
           uri: http://localhost:53373 #use port where payment service 2 is running
           predicates:
             - Method=GET
             - Path=/payment2
+          filters:
+            - SetPath=/hello
+        - id: lb-route-to-order-service
+          uri: lb://order-service
+          predicates:
+            - Method=GET
+            - Path=/lborder
+          filters:
+            - SetPath=/hello
+        - id: lb-route-to-payment-service2
+          uri: lb://payment-service
+          predicates:
+            - Method=GET
+            - Path=/lbpayment
           filters:
             - SetPath=/hello
 
